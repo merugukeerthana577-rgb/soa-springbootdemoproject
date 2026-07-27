@@ -3,76 +3,78 @@ package com.klef.soa.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.klef.soa.entity.Patient;
 import com.klef.soa.repository.PatientRepository;
 
-public class PatientServiceImpl implements PatientService 
+@Service
+public class PatientServiceImpl implements PatientService
 {
-	private final PatientRepository repo;
+  @Autowired
+  private PatientRepository repo;
+  @Override
+  public Patient addPatient(Patient patient) 
+  {
+    return repo.save(patient);
+  }
 
-	PatientServiceImpl(PatientRepository repo) {
-		this.repo = repo;
-	}
-	@Override
-	public Patient addPatient(Patient patient) {
-		return repo.save(patient);
-		
-	}
+  @Override
+  public List<Patient> displayAllPatients() {
+    return repo.findAll();
+  }
 
-	@Override
-	public List<Patient> displayAllPatients()
-	{
-		return  repo.findAll();
-		
-	}
+  @Override
+  public Patient updatePatient(Patient p) 
+  {
+  Optional<Patient> optional =repo.findById(p.getId());
+  if(optional.isPresent()) 
+  {
+    Patient patient = optional.get();
+    patient.setName(p.getName());
+    patient.setAge(p.getAge());
+    patient.setContact(p.getContact());
+    patient.setRemarks(p.getRemarks());
+    
+    return repo.save(patient);
+    
+  }
+  else {
+    return null;
+  }
+  }
 
-	@Override
-	public Patient updatePatient(Patient p) 
-	{
-		Optional<Patient> optional = repo.findById(p.getId());
-		if (optional.isPresent())
-	{
-		Patient patient = optional.get();
-		
-		patient.setName(p.getName());
-		patient.setAge(p.getAge());
-		patient.setContact(p.getContact());
-		patient.setRemarks(p.getRemarks());
-		
-	 return repo.save(patient);
-	}
-		else
-		{
-			return null;
-		}
-	}
+  @Override
+  public Patient displayPatientById(Long id) 
+  {
+    return repo.findById(id).orElse(null);
+  }
 
-	@Override
-	public Patient displayPatientById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Override
+  public String deletePatientById(Long id) {
+    boolean status =repo.existsById(id);
+    if(status) 
+    {
+      repo.deleteById(id);
+      return "Patient Deleted Successfully";
+    }
+    else 
+    {
+      return "Patient ID Not Found";
+    }
+  }
 
-	@Override
-	public String deletePatientById(Long id)
-	{
-	 boolean status = repo.existsById(id);
-	 if(status)
-	 {
-		repo.deleteById(id);
-		return "Patient Deleted Successfully";
-	 }
-	 else
-	 {
-		 return "Patient ID not found";
-	 }
-	}
+  @Override
+  public List<Patient> displayPatientsByGender(String gender)
+  {
+    return repo.findByGender(gender);
+  }
 
-	@Override
-	public List<Patient> displayPatientByGender(String gender) 
-	{
-		return repo.findByGender(gender);
-		
-	}
+  @Override
+  public Long displayPatientCount()
+  {
+	return repo.count();
+  }
 
 }
